@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>かいものにいこう！ - なにをかおうかな？</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 紙吹雪用Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- アプリヘッダー -->
+  <header class="app-header">
+    <div class="header-title">
+      🛒 かいものにいこう！
+      <span class="badge">とくべつしえん</span>
+    </div>
+    <div class="header-actions">
+      <button id="btnHeaderAlbum" class="btn-header-album" aria-label="アルバムをみる">
+        📸 アルバム
+        <span id="albumCountBadge" class="album-count-badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ステップ進行バー -->
+  <nav class="step-indicator-bar" aria-label="学習のステップ">
+    <div id="chipStep1" class="step-chip active">① しゅるい</div>
+    <div id="chipStep2" class="step-chip">② おかしをえらぶ</div>
+    <div id="chipStep3" class="step-chip">③ きりとり・ねだん</div>
+    <div id="chipStep4" class="step-chip">④ ワークシート</div>
+    <div id="chipStep5" class="step-chip">⑤ かんせい！</div>
+  </nav>
+
+  <!-- メイン操作ステージ -->
+  <main class="main-stage">
+
+    <!-- ==================== ステップ①：ジャンル選択 ==================== -->
+    <section id="viewStep1" class="step-view active">
+      <div class="guide-header">
+        <div class="guide-text">
+          <span>🍪</span>
+          <span>どのおかしが すきかな？ えらんでね！</span>
+        </div>
+      </div>
+
+      <div class="category-grid" id="categoryGrid">
+        <!-- JSで動的生成：チョコ、アメ、グミ、スナック菓子、駄菓子、ラムネ・タブレット、おせんべい、マシュマロ・ゼリー、ちょくせつにゅうりょく -->
+      </div>
+    </section>
+
+    <!-- ==================== ステップ②：お菓子選択 ＆ Google画像検索へジャンプ ==================== -->
+    <section id="viewStep2" class="step-view">
+      <div class="guide-header">
+        <div class="guide-text">
+          <span>🔍</span>
+          <span id="step2GuideText">すきなおかしを えらんでね！Googleで がぞうが ひらくよ！</span>
+        </div>
+      </div>
+
+      <!-- ツールバー -->
+      <div class="search-toolbar">
+        <div id="activeCategoryBadge" class="current-category-badge">🍘 おせんべい</div>
+        <div class="search-input-box">
+          <input type="text" id="searchInput" placeholder="おかしのなまえで けんさく..." readonly>
+          <button id="btnSearchKeyboard" class="btn-open-keyboard">✏️ もじをいれる</button>
+        </div>
+        <button id="btnBackToStep1" class="btn-retake" style="flex:none; padding:10px 16px;">↩️ もどる</button>
+      </div>
+
+      <!-- iPad写真読み込み用バナー（Google検索後にスクショを読み込むボタン） -->
+      <div class="external-search-banner">
+        <button id="btnUploadScreenshot" class="btn-upload-photo" style="width:100%;">
+          <span style="font-size:1.4rem;">📁</span>
+          <span id="uploadBtnLabel">iPadで とった スクショ（しゃしん）をつかう！</span>
+        </button>
+        <input type="file" id="fileUploadInput" accept="image/*" style="display:none;">
+      </div>
+
+      <!-- 文字だけの押しやすいお菓子選択肢リスト -->
+      <div class="snack-list-container" id="snackGrid">
+        <!-- JSで文字選択肢ボタンを一覧描画 -->
+      </div>
+    </section>
+
+    <!-- ==================== ステップ③：自動切り取り ＆ お値段自動しらべ ==================== -->
+    <section id="viewStep3" class="step-view">
+      <div class="guide-header">
+        <div class="guide-text">
+          <span>✂️</span>
+          <span>おかしの しゃしんを きりとって、ねだんを しらべたよ！</span>
+        </div>
+      </div>
+
+      <div class="crop-preview-box">
+        <!-- 自動トリミングプレビュー -->
+        <div class="cropped-image-container" id="croppedImageContainer">
+          <span class="crop-badge-decor">✂️ かんたんきりとり</span>
+          <div id="cropPreviewContent" style="width:100%; height:100%;"></div>
+        </div>
+
+        <!-- おねだん自動しらべカード（児童の手動入力なし！） -->
+        <div class="auto-price-card">
+          <div class="price-lookup-status">
+            <span>⚡</span>
+            <span>ねだんを じどうで しらべたよ！</span>
+          </div>
+          <div id="cropSnackName" class="snack-name-display">おかしのなまえ</div>
+          <div class="price-big-display">
+            <span id="cropSnackPrice">120</span><span>えん</span>
+          </div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="crop-actions-row">
+          <button id="btnRetakeSnack" class="btn-retake">↩️ さがしなおす</button>
+          <button id="btnAddAlbum" class="btn-add-album">
+            📥 アルバムに いれる！
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ステップ④：ワークシート画面 ==================== -->
+    <section id="viewStep4" class="step-view">
+      <div class="guide-header">
+        <div class="guide-text">
+          <span>📝</span>
+          <span>ワークシートに しゃしんを はろう！</span>
+        </div>
+      </div>
+
+      <div class="worksheet-layout-wrapper">
+
+        <!-- 条件リアルタイム判定バナー -->
+        <div class="condition-status-banner">
+          <div class="condition-row">
+            <div id="pillCountCondition" class="condition-pill ok">
+              <span>① かず：</span>
+              <strong id="badgeCurrentCount">0</strong> / 2こ まで
+            </div>
+            <div class="total-price-meter">
+              <span>ごうけい：</span>
+              <span id="badgeTotalPrice" class="val">0</span>
+              <span>えん</span>
+            </div>
+          </div>
+          <div class="condition-row">
+            <div id="pillPriceCondition" class="condition-pill ok">
+              <span>② おかね：200円まで</span>
+              <span id="priceStatusText" style="margin-left:8px;">（あと 200えん かえるよ）⭕</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ワークシート用紙本体（添付PDFを完全再現） -->
+        <div class="worksheet-sheet" id="worksheetSheet">
+          <!-- 手描き枠の装飾 -->
+          <div class="worksheet-doodle-frame"></div>
+          <div class="doodle-icon" style="top:12px; left:12px;">📐</div>
+          <div class="doodle-icon" style="top:12px; right:12px;">✈️</div>
+          <div class="doodle-icon" style="bottom:12px; left:12px;">📏</div>
+          <div class="doodle-icon" style="bottom:12px; right:12px;">✏️</div>
+
+          <!-- ヘッダー：タイトル ＆ 条件 -->
+          <div class="worksheet-header-area">
+            <h1 class="worksheet-main-title">なにを かおうかな？</h1>
+            <div class="worksheet-conditions-box">
+              <div><span class="num">①</span> <strong>２こ まで</strong></div>
+              <div><span class="num">②</span> <strong>200円 まで</strong></div>
+            </div>
+          </div>
+
+          <!-- 中央：おかしやさんで かいたいもの（黒枠＆黄色のマスキングテープ） -->
+          <div class="snack-target-card-box">
+            <div class="masking-tape-decor"></div>
+            <h2 class="target-card-title">おかしやさんで かいたいもの</h2>
+
+            <!-- お菓子スロット（最大2個） -->
+            <div class="snack-paste-slots">
+              <!-- スロット1 -->
+              <div id="slot1" class="snack-slot-item">
+                <div class="slot-empty-prompt">
+                  <span class="icon">➕</span>
+                  <span>１こめ</span>
+                  <button class="btn-slot-choose" data-slot="1">しゃしんを えらぶ</button>
+                </div>
+              </div>
+
+              <!-- スロット2 -->
+              <div id="slot2" class="snack-slot-item">
+                <div class="slot-empty-prompt">
+                  <span class="icon">➕</span>
+                  <span>２こめ</span>
+                  <button class="btn-slot-choose" data-slot="2">しゃしんを えらぶ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右下：なまえ枠 -->
+          <div class="worksheet-footer-area">
+            <div class="name-banner-box" id="nameBannerBox">
+              <span class="name-banner-label">なまえ</span>
+              <span class="name-banner-val" id="nameDisplayVal">（タップしていれる）</span>
+              <span class="btn-name-edit">✏️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ワークシート下部アクション -->
+        <div class="worksheet-actions-bar">
+          <button id="btnFindMoreSnack" class="btn-find-more">
+            🔍 おかしを さがしにいく
+          </button>
+          <button id="btnCompleteDone" class="btn-complete-done">
+            🌟 できた！
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== ステップ⑤：完成＆画像保存画面 ==================== -->
+    <section id="viewStep5" class="step-view">
+      <div class="completed-banner-box">
+        <div style="font-size: 4rem;">🎉</div>
+        <h2 class="completed-title">かんせい！ すごいね！</h2>
+        <p style="font-size:1.25rem; font-weight:700; color:#495057;">
+          ２こいない・200円いないで えらぶことができたよ！
+        </p>
+
+        <!-- 完成したワークシートの画像プレビュー -->
+        <div id="finalWorksheetPreview" style="width:100%; max-width:480px; border-radius:16px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.15); margin: 10px 0;">
+        </div>
+
+        <!-- 保存ボタン -->
+        <button id="btnDownloadImage" class="btn-download-img">
+          📥 ワークシートのがぞうを ほぞんする！
+        </button>
+
+        <div style="display:flex; gap:14px; margin-top:10px;">
+          <button id="btnBackToWorksheet" class="btn-retake">✏️ なおす</button>
+          <button id="btnRestartApp" class="btn-restart-app">🔄 はじめから やりなおす</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== アプリ内アルバム（モーダル） ==================== -->
+  <div id="albumModalOverlay" class="album-modal-overlay">
+    <div class="album-sheet-content">
+      <div class="album-sheet-header">
+        <h3 class="album-sheet-title">📸 アプリの アルバム（えらんでね）</h3>
+        <button id="btnCloseAlbum" class="btn-close-album">✕</button>
+      </div>
+      <div style="display:flex; justify-content:center; margin-bottom:8px;">
+        <button id="btnAlbumUploadPhoto" class="btn-upload-photo" style="width:100%; max-width:400px;">
+          <span style="font-size:1.3rem;">📁</span>
+          <span>iPadの カメラロールから えらぶ</span>
+        </button>
+      </div>
+      <div id="albumItemsGrid" class="album-items-grid">
+        <!-- JSでアルバム写真一覧を描画 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 五十音ソフトキーボードモーダル ==================== -->
+  <div id="keyboardModalOverlay" class="keyboard-modal-overlay">
+    <div class="keyboard-modal-box">
+      <h3 id="keyboardModalTitle" class="keyboard-header-title">ひらがなを えらんでね</h3>
+      <div class="keyboard-preview-display">
+        <span id="keyboardPreviewText"></span>
+        <span style="font-size:1rem; color:#868e96;">✏️</span>
+      </div>
+      <div class="kana-keyboard-grid" id="kanaKeyboardGrid">
+        <!-- JSで五十音キーを生成 -->
+      </div>
+      <div class="keyboard-control-row">
+        <button id="btnKbClear" class="btn-kb-action btn-kb-clear">ぜんぶけす</button>
+        <button id="btnKbDelete" class="btn-kb-action btn-kb-delete">１もじけす ⌫</button>
+        <button id="btnKbSubmit" class="btn-kb-action btn-kb-submit">けってい ✔️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== アラートポップアップ（「２こまでだよ！」等） ==================== -->
+  <div id="alertPopupOverlay" class="alert-popup-overlay">
+    <div class="alert-popup-box">
+      <div id="alertIconBig" class="alert-icon-big">⚠️</div>
+      <div id="alertMsgText" class="alert-msg-text">２こまでだよ！</div>
+      <div id="alertSubText" class="alert-sub-text">どちらかを はずして やりなおしてね。</div>
+      <button id="btnAlertOk" class="btn-alert-ok">わかった！</button>
+    </div>
+  </div>
+
+  <!-- スクリプト -->
+  <script src="snack-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
