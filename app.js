@@ -187,6 +187,19 @@ function setupEventListeners() {
   }
 
   // ステップ③のアクション
+  const btnCrop = document.getElementById('btnLaunchCrop');
+  if (btnCrop) {
+    btnCrop.addEventListener('click', openCropModal);
+  }
+  document.getElementById('btnCloseCropModal').addEventListener('click', closeCropModal);
+  document.getElementById('btnCancelCrop').addEventListener('click', closeCropModal);
+  document.getElementById('btnConfirmCrop').addEventListener('click', confirmCropSelection);
+  document.getElementById('btnCropSmaller').addEventListener('click', () => resizeCropBox(-0.15));
+  document.getElementById('btnCropLarger').addEventListener('click', () => resizeCropBox(0.15));
+  document.getElementById('btnCropCenter').addEventListener('click', centerCropBox);
+
+  setupCropDragHandlers();
+
   document.getElementById('btnRetakeSnack').addEventListener('click', () => goToStep(2));
   document.getElementById('btnAddAlbum').addEventListener('click', () => {
     if (!state.capturedSnack) return;
@@ -431,6 +444,7 @@ function handleFileSelected(e) {
       kana: finalKana,
       category: finalCategory,
       price: finalPrice,
+      originalRawUrl: dataUrl, // 切り抜き用の元全体スクショ
       imgUrl: dataUrl,
       visualHtml: `<img src="${dataUrl}" alt="${finalName}" style="width:100%; height:100%; object-fit:cover;">`
     };
@@ -463,6 +477,172 @@ function prepareStep3Crop(snack) {
 
   document.getElementById('cropSnackName').textContent = snack.name;
   document.getElementById('cropSnackPrice').textContent = snack.price;
+}
+
+// ==================== 切り取り（トリミング）モーダル機能 ====================
+const cropState = {
+  x: 40,
+  y: 40,
+  size: 200,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initBoxX: 0,
+  initBoxY: 0
+};
+
+// 「✂️ かんたんきりとり」をタップした時に起動
+function openCropModal() {
+  if (!state.capturedSnack) return;
+  playTapSound();
+
+  const overlay = document.getElementById('cropModalOverlay');
+  const img = document.getElementById('cropSourceImage');
+  const rawSrc = state.capturedSnack.originalRawUrl || state.capturedSnack.imgUrl;
+
+  img.onload = () => {
+    const wrap = document.getElementById('cropWorkspaceWrap');
+    const wrapW = wrap.clientWidth;
+    const wrapH = wrap.clientHeight;
+    const imgW = img.clientWidth || wrapW;
+    const imgH = img.clientHeight || wrapH;
+
+    const baseSize = Math.min(imgW, imgH) * 0.7;
+    cropState.size = Math.max(100, Math.min(baseSize, 300));
+    cropState.x = (wrapW - cropState.size) / 2;
+    cropState.y = (wrapH - cropState.size) / 2;
+
+    updateCropBoxStyle();
+  };
+
+  img.src = rawSrc;
+  overlay.classList.add('active');
+}
+
+function closeCropModal() {
+  playTapSound();
+  document.getElementById('cropModalOverlay').classList.remove('active');
+}
+
+function updateCropBoxStyle() {
+  const box = document.getElementById('cropSelectionBox');
+  const wrap = document.getElementById('cropWorkspaceWrap');
+  if (!box || !wrap) return;
+
+  const maxW = wrap.clientWidth;
+  const maxH = wrap.clientHeight;
+
+  if (cropState.size > Math.min(maxW, maxH)) {
+    cropState.size = Math.min(maxW, maxH);
+  }
+
+  cropState.x = Math.max(0, Math.min(cropState.x, maxW - cropState.size));
+  cropState.y = Math.max(0, Math.min(cropState.y, maxH - cropState.size));
+
+  box.style.left = `${cropState.x}px`;
+  box.style.top = `${cropState.y}px`;
+  box.style.width = `${cropState.size}px`;
+  box.style.height = `${cropState.size}px`;
+}
+
+function resizeCropBox(deltaPercent) {
+  playTapSound();
+  const wrap = document.getElementById('cropWorkspaceWrap');
+  const delta = Math.min(wrap.clientWidth, wrap.clientHeight) * deltaPercent;
+  const newSize = cropState.size + delta;
+
+  if (newSize >= 80 && newSize <= Math.min(wrap.clientWidth, wrap.clientHeight)) {
+    cropState.x -= delta / 2;
+    cropState.y -= delta / 2;
+    cropState.size = newSize;
+    updateCropBoxStyle();
+  }
+}
+
+function centerCropBox() {
+  playTapSound();
+  const wrap = document.getElementById('cropWorkspaceWrap');
+  cropState.x = (wrap.clientWidth - cropState.size) / 2;
+  cropState.y = (wrap.clientHeight - cropState.size) / 2;
+  updateCropBoxStyle();
+}
+
+function setupCropDragHandlers() {
+  const box = document.getElementById('cropSelectionBox');
+  if (!box) return;
+
+  box.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    box.setPointerCapture(e.pointerId);
+    cropState.isDragging = true;
+    cropState.startX = e.clientX;
+    cropState.startY = e.clientY;
+    cropState.initBoxX = cropState.x;
+    cropState.initBoxY = cropState.y;
+  });
+
+  box.addEventListener('pointermove', (e) => {
+    if (!cropState.isDragging) return;
+    const dx = e.clientX - cropState.startX;
+    const dy = e.clientY - cropState.startY;
+    cropState.x = cropState.initBoxX + dx;
+    cropState.y = cropState.initBoxY + dy;
+    updateCropBoxStyle();
+  });
+
+  const onPointerUp = (e) => {
+    if (cropState.isDragging) {
+      cropState.isDragging = false;
+      try { box.releasePointerCapture(e.pointerId); } catch(err){}
+    }
+  };
+  box.addEventListener('pointerup', onPointerUp);
+  box.addEventListener('pointercancel', onPointerUp);
+}
+
+// 決定：枠内をCanvasで切り抜く
+function confirmCropSelection() {
+  playSuccessSound();
+  const img = document.getElementById('cropSourceImage');
+  const wrap = document.getElementById('cropWorkspaceWrap');
+
+  const imgRect = img.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+
+  const imgOffsetLeft = imgRect.left - wrapRect.left;
+  const imgOffsetTop = imgRect.top - wrapRect.top;
+
+  const relX = cropState.x - imgOffsetLeft;
+  const relY = cropState.y - imgOffsetTop;
+
+  const scale = img.naturalWidth / img.clientWidth;
+
+  const sourceX = Math.max(0, relX * scale);
+  const sourceY = Math.max(0, relY * scale);
+  const sourceSize = Math.max(10, cropState.size * scale);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 400;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(
+    img,
+    sourceX, sourceY, sourceSize, sourceSize,
+    0, 0, canvas.width, canvas.height
+  );
+
+  const croppedDataUrl = canvas.toDataURL('image/png');
+
+  // 画像を更新
+  state.capturedSnack.imgUrl = croppedDataUrl;
+  state.capturedSnack.visualHtml = `<img src="${croppedDataUrl}" alt="${state.capturedSnack.name}" style="width:100%; height:100%; object-fit:cover;">`;
+
+  // プレビュー枠に即時反映
+  document.getElementById('cropPreviewContent').innerHTML = state.capturedSnack.visualHtml;
+
+  // モーダルを閉じる
+  document.getElementById('cropModalOverlay').classList.remove('active');
 }
 
 // ==================== アプリ内アルバム管理 ====================

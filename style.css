@@ -532,14 +532,160 @@ body {
 
 .crop-badge-decor {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(0,0,0,0.7);
-  color: white;
+  top: 10px;
+  left: 10px;
+  background: #fcc419;
+  color: #212529;
+  border: 2px solid #ffffff;
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.crop-badge-decor:hover {
+  background: #ffd43b;
+  transform: scale(1.05);
+}
+
+.crop-badge-decor:active {
+  transform: scale(0.95);
+}
+
+/* 切り取り（トリミング）モーダル */
+.crop-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 800;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.crop-modal-overlay.active {
+  display: flex;
+}
+
+.crop-modal-box {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 20px;
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+
+.crop-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.crop-modal-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #212529;
+}
+
+.crop-workspace-wrap {
+  position: relative;
+  width: 100%;
+  max-height: 50vh;
+  background: #212529;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+}
+
+.crop-workspace-wrap img {
+  max-width: 100%;
+  max-height: 50vh;
+  display: block;
+  pointer-events: none;
+}
+
+/* スポットライト切り取り枠 */
+.crop-selection-box {
+  position: absolute;
+  border: 4px dashed #ffd43b;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  cursor: move;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crop-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border: 3px solid #ffd43b;
+  border-radius: 50%;
+}
+.crop-corner.top-left { top: -9px; left: -9px; }
+.crop-corner.top-right { top: -9px; right: -9px; }
+.crop-corner.bottom-left { bottom: -9px; left: -9px; }
+.crop-corner.bottom-right { bottom: -9px; right: -9px; }
+
+.crop-drag-label {
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
   font-size: 0.85rem;
+  font-weight: 800;
   padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.crop-helpers-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-crop-tool {
+  background: #f1f3f5;
+  border: 2px solid #dee2e6;
+  color: #343a40;
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-crop-tool:active {
+  background: #e9ecef;
+  transform: scale(0.96);
+}
+
+.crop-modal-footer {
+  display: flex;
+  gap: 12px;
 }
 
 /* おねだん自動しらべカード */

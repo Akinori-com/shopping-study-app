@@ -99,7 +99,9 @@
       <div class="crop-preview-box">
         <!-- 自動トリミングプレビュー -->
         <div class="cropped-image-container" id="croppedImageContainer">
-          <span class="crop-badge-decor">✂️ かんたんきりとり</span>
+          <button id="btnLaunchCrop" class="crop-badge-decor" title="タップしてきりとる">
+            ✂️ かんたんきりとり
+          </button>
           <div id="cropPreviewContent" style="width:100%; height:100%;"></div>
         </div>
 
@@ -297,6 +299,44 @@
       <div id="alertMsgText" class="alert-msg-text">２こまでだよ！</div>
       <div id="alertSubText" class="alert-sub-text">どちらかを はずして やりなおしてね。</div>
       <button id="btnAlertOk" class="btn-alert-ok">わかった！</button>
+    </div>
+  </div>
+
+  <!-- ==================== 切り取り（トリミング）モーダル ==================== -->
+  <div id="cropModalOverlay" class="crop-modal-overlay">
+    <div class="crop-modal-box">
+      <div class="crop-modal-header">
+        <h3 class="crop-modal-title">✂️ おかしの ところに 四角を あわせてね！</h3>
+        <button id="btnCloseCropModal" class="btn-close-album">✕</button>
+      </div>
+
+      <!-- 切り取り操作エリア -->
+      <div class="crop-workspace-wrap" id="cropWorkspaceWrap">
+        <img id="cropSourceImage" src="" alt="切り取り元画像">
+        <!-- 移動・リサイズ可能な切り取り枠 -->
+        <div id="cropSelectionBox" class="crop-selection-box">
+          <div class="crop-corner top-left"></div>
+          <div class="crop-corner top-right"></div>
+          <div class="crop-corner bottom-left"></div>
+          <div class="crop-corner bottom-right"></div>
+          <div class="crop-drag-label">ここをきりとる</div>
+        </div>
+      </div>
+
+      <!-- 拡大・縮小・リセット補助ボタン（児童向け大きなボタン） -->
+      <div class="crop-helpers-row">
+        <button id="btnCropSmaller" class="btn-crop-tool">➖ ちいさく</button>
+        <button id="btnCropCenter" class="btn-crop-tool">🔄 まんなか</button>
+        <button id="btnCropLarger" class="btn-crop-tool">➕ おおきく</button>
+      </div>
+
+      <!-- 決定ボタン -->
+      <div class="crop-modal-footer">
+        <button id="btnCancelCrop" class="btn-retake">↩️ やめる</button>
+        <button id="btnConfirmCrop" class="btn-add-album" style="flex:2;">
+          ✂️ ここを きりとる！（けってい）
+        </button>
+      </div>
     </div>
   </div>
 
