@@ -20,19 +20,19 @@
       <span class="badge">とくべつしえん</span>
     </div>
     <div class="header-actions">
-      <button id="btnHeaderAlbum" class="btn-header-album" aria-label="アルバムをみる">
-        📸 アルバム
+      <button id="btnHeaderAlbum" class="btn-header-album" aria-label="あるばむをみる">
+        📸 あるばむ
         <span id="albumCountBadge" class="album-count-badge">0</span>
       </button>
     </div>
   </header>
 
   <!-- ステップ進行バー -->
-  <nav class="step-indicator-bar" aria-label="学習のステップ">
+  <nav class="step-indicator-bar" aria-label="学習のすてっぷ">
     <div id="chipStep1" class="step-chip active">① しゅるい</div>
     <div id="chipStep2" class="step-chip">② おかしをえらぶ</div>
     <div id="chipStep3" class="step-chip">③ きりとり・ねだん</div>
-    <div id="chipStep4" class="step-chip">④ ワークシート</div>
+    <div id="chipStep4" class="step-chip">④ わーくしーと</div>
     <div id="chipStep5" class="step-chip">⑤ かんせい！</div>
   </nav>
 
@@ -49,7 +49,7 @@
       </div>
 
       <div class="category-grid" id="categoryGrid">
-        <!-- JSで動的生成：チョコ、アメ、グミ、スナック菓子、駄菓子、ラムネ・タブレット、おせんべい、マシュマロ・ゼリー、ちょくせつにゅうりょく -->
+        <!-- JSで動的生成：ちょこ、あめ、ぐみ、すなっくがし、だがし、らむね・たぶれっと、おせんべい、ましゅまろ・ぜりー、ちょくせつにゅうりょく -->
       </div>
     </section>
 
@@ -76,7 +76,7 @@
       <div class="external-search-banner">
         <button id="btnUploadScreenshot" class="btn-upload-photo" style="width:100%;">
           <span style="font-size:1.4rem;">📁</span>
-          <span id="uploadBtnLabel">iPadで とった スクショ（しゃしん）をつかう！</span>
+          <span id="uploadBtnLabel">iPadで とった すくしょ（しゃしん）をつかう！</span>
         </button>
         <input type="file" id="fileUploadInput" accept="image/*" style="display:none;">
       </div>
@@ -99,7 +99,7 @@
       <div class="crop-preview-box">
         <!-- 自動トリミングプレビュー -->
         <div class="cropped-image-container" id="croppedImageContainer">
-          <button id="btnLaunchCrop" class="crop-badge-decor" title="タップしてきりとる">
+          <button id="btnLaunchCrop" class="crop-badge-decor" title="おしてきりとる">
             ✂️ かんたんきりとり
           </button>
           <div id="cropPreviewContent" style="width:100%; height:100%;"></div>
@@ -121,7 +121,7 @@
         <div class="crop-actions-row">
           <button id="btnRetakeSnack" class="btn-retake">↩️ さがしなおす</button>
           <button id="btnAddAlbum" class="btn-add-album">
-            📥 アルバムに いれる！
+            📥 あるばむに いれる！
           </button>
         </div>
       </div>
@@ -132,7 +132,7 @@
       <div class="guide-header">
         <div class="guide-text">
           <span>📝</span>
-          <span>ワークシートに しゃしんを はろう！</span>
+          <span>わーくしーとに しゃしんを はろう！</span>
         </div>
       </div>
 
@@ -208,7 +208,7 @@
           <div class="worksheet-footer-area">
             <div class="name-banner-box" id="nameBannerBox">
               <span class="name-banner-label">なまえ</span>
-              <span class="name-banner-val" id="nameDisplayVal">（タップしていれる）</span>
+              <span class="name-banner-val" id="nameDisplayVal">（おしていれる）</span>
               <span class="btn-name-edit">✏️</span>
             </div>
           </div>
@@ -242,7 +242,7 @@
 
         <!-- 保存ボタン -->
         <button id="btnDownloadImage" class="btn-download-img">
-          📥 ワークシートのがぞうを ほぞんする！
+          📥 わーくしーとの がぞうを ほぞんする！
         </button>
 
         <div style="display:flex; gap:14px; margin-top:10px;">
@@ -258,13 +258,13 @@
   <div id="albumModalOverlay" class="album-modal-overlay">
     <div class="album-sheet-content">
       <div class="album-sheet-header">
-        <h3 class="album-sheet-title">📸 アプリの アルバム（えらんでね）</h3>
+        <h3 class="album-sheet-title">📸 あぷりの あるばむ（えらんでね）</h3>
         <button id="btnCloseAlbum" class="btn-close-album">✕</button>
       </div>
       <div style="display:flex; justify-content:center; margin-bottom:8px;">
         <button id="btnAlbumUploadPhoto" class="btn-upload-photo" style="width:100%; max-width:400px;">
           <span style="font-size:1.3rem;">📁</span>
-          <span>iPadの カメラロールから えらぶ</span>
+          <span>iPadの かめらろーるから えらぶ</span>
         </button>
       </div>
       <div id="albumItemsGrid" class="album-items-grid">

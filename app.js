@@ -166,8 +166,8 @@ function setupEventListeners() {
   document.getElementById('btnSearchKeyboard').addEventListener('click', () => openKeyboardModal('search'));
   document.getElementById('searchInput').addEventListener('click', () => openKeyboardModal('search'));
 
-  // スクショアップロードボタン
-  const btnUpload = document.getElementById('btnUploadScreenshot');
+  // スクショ選択ボタン
+  const btnUpload = document.getElementById('btnUploadScreenshot') || document.getElementById('btnPickScreenshot');
   if (btnUpload) {
     btnUpload.addEventListener('click', () => {
       document.getElementById('fileUploadInput').click();
@@ -267,7 +267,18 @@ function goToStep(stepNumber) {
   document.getElementById(`chipStep${stepNumber}`).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  if (stepNumber === 4) {
+  if (stepNumber === 2) {
+    const uploadBtn = document.getElementById('btnUploadScreenshot');
+    if (uploadBtn) uploadBtn.classList.remove('highlight');
+    const uploadLabel = document.getElementById('uploadBtnLabel');
+    if (uploadLabel) uploadLabel.textContent = 'iPadで とった すくしょ（しゃしん）をつかう！';
+    const readyCard = document.getElementById('screenshotReadyCard');
+    if (readyCard) readyCard.classList.remove('highlight');
+    const prompt = document.getElementById('readyCardPrompt');
+    if (prompt) prompt.textContent = 'すくしょを とったら、ここを おしてね！';
+    const guideText = document.getElementById('step2GuideText');
+    if (guideText) guideText.textContent = 'すきなおかしを えらんでね！Googleで がぞうが ひらくよ！';
+  } else if (stepNumber === 4) {
     updateWorksheetUI();
   }
 }
@@ -314,12 +325,6 @@ function selectCategory(cat) {
   document.getElementById('activeCategoryBadge').innerHTML = `${cat.icon} ${cat.name}`;
   document.getElementById('searchInput').value = '';
 
-  // アップロードボタンのテキストを初期化
-  const uploadLabel = document.getElementById('uploadBtnLabel');
-  if (uploadLabel) {
-    uploadLabel.textContent = 'iPadで とった スクショ（しゃしん）をつかう！';
-  }
-
   loadSnackList(cat.id, '');
   goToStep(2);
 }
@@ -359,7 +364,7 @@ function loadSnackList(category, query) {
     return;
   }
 
-  // 文字だけの押しやすいボタンリストを描画
+  // ひらがなを大きくした、おしやすい もじボタンを いちらん ひょうじ
   list.forEach(snack => {
     const btn = document.createElement('button');
     btn.className = 'snack-text-btn';
@@ -368,47 +373,96 @@ function loadSnackList(category, query) {
 
     btn.innerHTML = `
       <div class="snack-btn-main">
-        <div class="snack-btn-title">${snack.name}</div>
-        <div class="snack-btn-kana">${snack.kana}</div>
+        <div class="snack-btn-kana" style="font-size:1.25rem; font-weight:900; color:#1864ab;">${snack.kana}</div>
+        <div class="snack-btn-title" style="font-size:1.05rem; font-weight:700; color:#495057;">${snack.name}</div>
       </div>
       <div class="snack-btn-right">
         <div class="snack-btn-price">${snack.price} えん</div>
-        <div class="snack-btn-jump-icon">🌐 Google</div>
+        <div class="snack-btn-jump-icon">🔍 Googleで みる</div>
       </div>
     `;
 
     btn.addEventListener('click', () => {
-      handleSnackClick(snack, btn);
+      jumpToGoogleImageSearch(snack, btn);
     });
 
     container.appendChild(btn);
   });
 }
 
-// お菓子の選択肢をタップした時の処理（SafariでGoogle画像検索へジャンプ！）
-function handleSnackClick(snack, btnEl) {
+// Googleがぞうけんさくへ ジャンプ！
+function jumpToGoogleImageSearch(snack, btnEl) {
   playTapSound();
   state.selectedSnackCandidate = snack;
 
-  // 選択ハイライト
+  // ボタンを ピカッと えらんだ いろにする
   document.querySelectorAll('.snack-text-btn').forEach(b => b.classList.remove('selected-active'));
   if (btnEl) btnEl.classList.add('selected-active');
 
-  // SafariでGoogle画像検索を直接開く（「ハッピーターン 画像」「ぽたぽた焼き 画像」など）
-  const searchWord = `${snack.name} 画像`;
-  const googleUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchWord)}`;
+  // Googleがぞうけんさくを ひらく
+  const query = encodeURIComponent(snack.name + ' 画像');
+  const googleUrl = `https://www.google.com/search?tbm=isch&q=${query}`;
   window.open(googleUrl, '_blank');
 
-  // アプリに戻ってきた時の案内ボタンをわかりやすく更新
+  // アプリがわの すくしょあんない ボタンを ピカピカ ひからせる
+  const uploadBtn = document.getElementById('btnUploadScreenshot');
+  if (uploadBtn) {
+    uploadBtn.classList.add('highlight');
+  }
   const uploadLabel = document.getElementById('uploadBtnLabel');
   if (uploadLabel) {
-    uploadLabel.innerHTML = `<strong>「${snack.name}」</strong>の スクショをつかう！`;
+    uploadLabel.innerHTML = `📸 <strong>「${snack.name}」</strong>の すくしょを とったら ここを おしてね！`;
   }
-
+  const readyCard = document.getElementById('screenshotReadyCard');
+  if (readyCard) {
+    readyCard.classList.add('highlight');
+  }
+  const prompt = document.getElementById('readyCardPrompt');
+  if (prompt) {
+    prompt.innerHTML = `📸 <strong>「${snack.name}」</strong>の しゃしんを とったら、ここを おしてね！`;
+  }
   const guideText = document.getElementById('step2GuideText');
   if (guideText) {
-    guideText.textContent = `Googleで「${snack.name}」のスクショをとったら、緑のボタンをおしてね！`;
+    guideText.textContent = `Googleで「${snack.name}」の すくしょ（しゃしん）を とったら、したの ぼたんを おしてね！`;
   }
+}
+
+// 写真を決定してそのままステップ③（きりとり・ねだん）へ直行！
+function chooseWebPhotoAndProceed(snack, imgUrl) {
+  playSuccessSound();
+
+  const chosenSnack = {
+    id: 'snack_' + Date.now(),
+    name: snack.name,
+    kana: snack.kana || snack.name,
+    category: snack.category || state.selectedCategory,
+    price: snack.price,
+    originalRawUrl: imgUrl,
+    imgUrl: imgUrl,
+    visualHtml: `<img src="${imgUrl}" alt="${snack.name}" style="width:100%; height:100%; object-fit:contain;">`
+  };
+
+  state.capturedSnack = chosenSnack;
+  prepareStep3Crop(chosenSnack);
+  goToStep(3);
+}
+
+// Wikipedia/Wikimedia Commonsからリアルタイムに画像を探す関数
+async function fetchWikimediaImage(query) {
+  try {
+    const endpoint = `https://ja.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=0&gsrlimit=1&gsrsearch=${encodeURIComponent(query + ' お菓子')}&prop=pageimages&piprop=thumbnail&pithumbsize=600`;
+    const res = await fetch(endpoint);
+    const data = await res.json();
+    if (data.query && data.query.pages) {
+      const pages = Object.values(data.query.pages);
+      if (pages.length > 0 && pages[0].thumbnail) {
+        return pages[0].thumbnail.source;
+      }
+    }
+  } catch (e) {
+    console.warn('Wiki image search failed', e);
+  }
+  return null;
 }
 
 // ==================== iPad写真（スクショ）読み込み処理 ====================
@@ -669,7 +723,7 @@ function renderAlbumList() {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align:center; padding: 40px 10px; color:#868e96; font-weight:800;">
         <div style="font-size:3rem; margin-bottom:10px;">📸</div>
-        しゃしんが まだ ないよ！<br>うえの「📁 iPadの カメラロールから えらぶ」を押すか、<br>おかしを えらんで スクショをとってね！
+        しゃしんが まだ ないよ！<br>うえの「📁 iPadの しゃしんから えらぶ」を おすか、<br>おかしを えらんで すくしょを とってね！
       </div>
     `;
     return;
@@ -757,7 +811,7 @@ function updateWorksheetUI() {
   } else {
     const over = totalPrice - 200;
     pricePill.className = 'condition-pill warn';
-    priceStatus.innerHTML = `（${over}えん オーバー！）⚠️ ２００えんを こえたよ`;
+    priceStatus.innerHTML = `（${over}えん おおいよ！）⚠️ ２００えんを こえたよ`;
   }
 
   renderSlotUI(1, slot1);
@@ -768,7 +822,7 @@ function updateWorksheetUI() {
     nameValEl.textContent = state.studentName;
     nameValEl.style.color = '#1c7ed6';
   } else {
-    nameValEl.textContent = '（タップしていれる）';
+    nameValEl.textContent = '（おして いれる）';
     nameValEl.style.color = '#adb5bd';
   }
 }
@@ -812,12 +866,12 @@ function handleCompleteDone() {
   const totalPrice = (slot1 ? slot1.price : 0) + (slot2 ? slot2.price : 0);
 
   if (count === 0) {
-    showWarningModal('おかしを えらんでね！', 'まだ おかしが えらばれていないよ。\nしゃしんを えらんで ワークシートにはってね。');
+    showWarningModal('おかしを えらんでね！', 'まだ おかしが えらばれていないよ。\nしゃしんを えらんで わーくしーとに はってね。');
     return;
   }
 
   if (totalPrice > 200) {
-    showWarningModal('200円を こえちゃったよ！', `ごうけいが ${totalPrice}えん になっています。\n200えんいない になるように、おかしを えらびなおそう！`);
+    showWarningModal('200えんを こえちゃったよ！', `ごうけいが ${totalPrice}えん に なっているよ。\n200えん までに なるように、どちらかを べつの おかしに してね。`);
     return;
   }
 
@@ -826,7 +880,7 @@ function handleCompleteDone() {
 
   generateWorksheetCanvas().then(dataUrl => {
     const previewContainer = document.getElementById('finalWorksheetPreview');
-    previewContainer.innerHTML = `<img src="${dataUrl}" style="width:100%; display:block;" alt="かんせいワークシート">`;
+    previewContainer.innerHTML = `<img src="${dataUrl}" style="width:100%; display:block;" alt="かんせい わーくしーと">`;
     state.completedImageURL = dataUrl;
   });
 
@@ -888,6 +942,17 @@ function handleKeyboardSubmit() {
     document.getElementById('activeCategoryBadge').innerHTML = `🔍 ${text || 'けんさく'}`;
     loadSnackList('custom', text);
     goToStep(2);
+
+    if (text) {
+      const customSnack = {
+        id: 'custom_' + Date.now(),
+        name: text,
+        kana: text,
+        category: 'custom',
+        price: lookupSnackPrice(text, 'custom')
+      };
+      jumpToGoogleImageSearch(customSnack);
+    }
   } else {
     state.studentName = text;
     updateWorksheetUI();
@@ -1072,7 +1137,7 @@ function handleDownloadImage() {
   playSuccessSound();
 
   const link = document.createElement('a');
-  link.download = `なにをかおうかな_${state.studentName || 'ワークシート'}.png`;
+  link.download = `なにをかおうかな_${state.studentName || 'わーくしーと'}.png`;
   link.href = state.completedImageURL;
   document.body.appendChild(link);
   link.click();
