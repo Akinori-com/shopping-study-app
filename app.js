@@ -372,11 +372,10 @@ function loadSnackList(category, query) {
     btn.setAttribute('data-id', snack.id);
 
     btn.innerHTML = `
-      <div class="snack-btn-main">
-        <div class="snack-btn-kana" style="font-size:1.25rem; font-weight:900; color:#1864ab;">${snack.kana}</div>
-        <div class="snack-btn-title" style="font-size:1.05rem; font-weight:700; color:#495057;">${snack.name}</div>
+      <div class="snack-btn-top">
+        <div class="snack-btn-name">${snack.name}</div>
       </div>
-      <div class="snack-btn-right">
+      <div class="snack-btn-bottom">
         <div class="snack-btn-price">${snack.price} えん</div>
         <div class="snack-btn-jump-icon">🔍 Googleで みる</div>
       </div>

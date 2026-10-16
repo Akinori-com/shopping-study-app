@@ -493,23 +493,24 @@ body {
 /* 文字だけのお菓子選択肢リスト（タップでGoogle検索へジャンプ） */
 .snack-list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
   width: 100%;
 }
 
 .snack-text-btn {
   background: #ffffff;
   border: 3px solid #ced4da;
-  border-radius: 20px;
-  padding: 16px 20px;
+  border-radius: 22px;
+  padding: 16px 18px 14px 18px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
   transition: all 0.15s ease;
-  text-align: left;
+  min-height: 125px;
 }
 
 .snack-text-btn:hover {
@@ -530,28 +531,31 @@ body {
   box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.3);
 }
 
-.snack-btn-main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.snack-btn-title {
-  font-size: 1.35rem;
-  font-weight: 900;
-  color: #212529;
-}
-
-.snack-btn-kana {
-  font-size: 0.95rem;
-  color: #868e96;
-  font-weight: 700;
-}
-
-.snack-btn-right {
+.snack-btn-top {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  padding: 4px 0 10px 0;
+  border-bottom: 2px dashed #edf2f7;
+}
+
+.snack-btn-name {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #1864ab;
+  text-align: center;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.snack-btn-bottom {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  gap: 8px;
 }
 
 .snack-btn-price {
@@ -559,7 +563,7 @@ body {
   color: white;
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -567,7 +571,7 @@ body {
 .snack-btn-jump-icon {
   background: #4285f4;
   color: white;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 900;
